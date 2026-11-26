@@ -6,13 +6,23 @@
 
 ## Daftar Isi
 
-1. [Fitur Utama Aplikasi](#fitur-utama-aplikasi)
-2. [Tech Stack & Arsitektur](#tech-stack--arsitektur)
-3. [Syarat MikroTik RouterOS agar Bisa Terhubung](#syarat-mikrotik-routeros-agar-bisa-terhubung)
-4. [Cara Konfigurasi Cepat di MikroTik](#cara-konfigurasi-cepat-di-mikrotik)
-5. [Daftar Endpoint REST API yang Digunakan](#daftar-endpoint-rest-api-yang-digunakan)
-6. [Mode Demo (Simulasi Lokal)](#mode-demo-simulasi-lokal)
-7. [Kebutuhan Lingkungan Build](#kebutuhan-lingkungan-build)
+1. [Tampilan Demo Aplikasi](#tampilan-demo-aplikasi)
+2. [Fitur Utama Aplikasi](#fitur-utama-aplikasi)
+3. [Tech Stack & Arsitektur](#tech-stack--arsitektur)
+4. [Syarat MikroTik RouterOS agar Bisa Terhubung](#syarat-mikrotik-routeros-agar-bisa-terhubung)
+5. [Cara Konfigurasi Cepat di MikroTik](#cara-konfigurasi-cepat-di-mikrotik)
+6. [Daftar Endpoint REST API yang Digunakan](#daftar-endpoint-rest-api-yang-digunakan)
+7. [Mode Demo (Simulasi Lokal)](#mode-demo-simulasi-lokal)
+8. [Kebutuhan Lingkungan Build](#kebutuhan-lingkungan-build)
+
+---
+
+## Tampilan Demo Aplikasi
+
+| Dashboard Monitoring | Manajemen Users | Hotspot & Profiles | Pengaturan Router |
+| :---: | :---: | :---: | :---: |
+| <img src="docs/screenshots/dashboard-demo.jpg" alt="Dashboard Erlkim NET" width="210" /> | <img src="docs/screenshots/users-demo.jpg" alt="Users Hotspot Erlkim NET" width="210" /> | <img src="docs/screenshots/hotspot-demo.jpg" alt="Hotspot Management Erlkim NET" width="210" /> | <img src="docs/screenshots/settings-demo.jpg" alt="Settings Erlkim NET" width="210" /> |
+| Monitor CPU, RAM, Storage, Alert, & Grafik RX/TX | Daftar user aktif/nonaktif, QR Login, & batas kuota | Tab Users, Profiles, Server, Walled Garden, & IP Bindings | Status perangkat, Koneksi API, IP, DHCP, & Wi-Fi |
 
 ---
 

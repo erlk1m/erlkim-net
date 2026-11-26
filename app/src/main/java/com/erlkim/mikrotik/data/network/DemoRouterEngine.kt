@@ -101,9 +101,9 @@ class DemoRouterEngine {
     )
 
     private val activeSessions = mutableListOf(
-        HotspotActiveSession("*1", "user_andri", "10.10.0.42", "5C:C9:D3:44:12:88", "04:12:08", 290L * 1024 * 1024, 50L * 1024 * 1024, "My_MikroTik_Hotspot"),
-        HotspotActiveSession("*2", "Sisca_VIP", "10.10.0.58", "B8:27:EB:61:A0:19", "11:40:22", 360L * 1024 * 1024, 60L * 1024 * 1024, "My_MikroTik_Hotspot"),
-        HotspotActiveSession("*3", "budi_kafe", "10.10.0.71", "3C:22:FB:90:4D:11", "02:05:44", 920L * 1024 * 1024, 140L * 1024 * 1024, "My_MikroTik_Hotspot"),
+        HotspotActiveSession("*1", "user_andri", "10.10.0.42", "5C:C9:D3:44:12:88", "04:12:08", 290L * 1024 * 1024, 50L * 1024 * 1024, "My_MikroTik_Hotspot", "14s"),
+        HotspotActiveSession("*2", "Sisca_VIP", "10.10.0.58", "B8:27:EB:61:A0:19", "11:40:22", 360L * 1024 * 1024, 60L * 1024 * 1024, "My_MikroTik_Hotspot", "2m10s"),
+        HotspotActiveSession("*3", "budi_kafe", "10.10.0.71", "3C:22:FB:90:4D:11", "02:05:44", 920L * 1024 * 1024, 140L * 1024 * 1024, "My_MikroTik_Hotspot", "0s"),
     )
 
     private val ipBindings = mutableListOf(

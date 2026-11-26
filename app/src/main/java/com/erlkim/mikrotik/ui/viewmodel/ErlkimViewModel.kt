@@ -157,6 +157,9 @@ data class ErlkimUiState(
     fun activeIpForUser(username: String): String? =
         activeSessions.firstOrNull { it.user.equals(username, ignoreCase = true) }?.address?.takeIf { it.isNotBlank() }
 
+    fun activeSessionForUser(username: String): HotspotActiveSession? =
+        activeSessions.firstOrNull { it.user.equals(username, ignoreCase = true) }
+
     val filteredUsers: List<HotspotUser>
         get() {
             val query = userSearchQuery.trim()
@@ -203,6 +206,7 @@ class ErlkimViewModel(application: Application) : AndroidViewModel(application) 
     private var dhcpRefreshJob: Job? = null
     private var systemHealthRefreshJob: Job? = null
     private var ipBindingsRefreshJob: Job? = null
+    private var activeSessionsRefreshJob: Job? = null
     private var consecutivePollFailures: Int = 0
     private var isAppInForeground: Boolean = true
     private val cacheStaleThresholdMs: Long = 8_000L
@@ -277,6 +281,12 @@ class ErlkimViewModel(application: Application) : AndroidViewModel(application) 
                 ensureTelemetryAlive()
                 if (state.connectionStatus.isConnected && now - features.ipBindingsState.lastSyncedMs > cacheStaleThresholdMs) {
                     refreshIpBindingsSection(silent = true)
+                }
+            }
+            ActiveModal.ActiveSessions -> {
+                ensureTelemetryAlive()
+                if (state.connectionStatus.isConnected) {
+                    refreshActiveSessionsSection(silent = true)
                 }
             }
             ActiveModal.Wireless -> ensureTelemetryAlive()
@@ -684,6 +694,52 @@ class ErlkimViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
+    fun refreshActiveSessionsSection(silent: Boolean = false) {
+        if (activeSessionsRefreshJob?.isActive == true) return
+        val state = _uiState.value
+        if (!state.connectionStatus.isConnected) return
+        activeSessionsRefreshJob = viewModelScope.launch {
+            if (!silent) _uiState.update { it.copy(isRefreshing = true) }
+            try {
+                if (state.routerConfig.demoMode || state.connectionStatus is ConnectionStatus.ConnectedDemo) {
+                    if (!silent) delay(220L)
+                    val snap = demoEngine.snapshot()
+                    val now = System.currentTimeMillis()
+                    _uiState.update { current ->
+                        current.copy(
+                            hotspotUsers = snap.hotspotUsers,
+                            activeSessions = snap.activeSessions,
+                            lastTelemetrySyncMs = now,
+                            isRefreshing = false,
+                        )
+                    }
+                    if (!silent) _snackbarMessage.tryEmit("Daftar user aktif diperbarui (${snap.activeSessions.size} sesi)")
+                    ensureTelemetryAlive()
+                    return@launch
+                }
+
+                restClient.fetchOperationalSnapshot(state.routerConfig)
+                    .onSuccess { op ->
+                        consecutivePollFailures = 0
+                        applyOperationalSnapshot(op)
+                        if (!silent) {
+                            _uiState.update { it.copy(isRefreshing = false) }
+                            _snackbarMessage.tryEmit("Daftar user aktif diperbarui (${op.activeSessions.size} sesi)")
+                        }
+                        ensureTelemetryAlive()
+                    }
+                    .onFailure { err ->
+                        if (!silent) {
+                            _uiState.update { it.copy(isRefreshing = false) }
+                            _snackbarMessage.tryEmit("Gagal menyegarkan user aktif: ${err.message ?: "Error RouterOS"}")
+                        }
+                    }
+            } finally {
+                if (!silent) _uiState.update { it.copy(isRefreshing = false) }
+            }
+        }
+    }
+
     fun connectWithConfig(config: RouterConfig, persist: Boolean = true) {
         connectJob?.cancel()
         pollingJob?.cancel()
@@ -989,6 +1045,7 @@ class ErlkimViewModel(application: Application) : AndroidViewModel(application) 
                                     ActiveModal.DhcpServer -> refreshDhcpSection(silent = true)
                                     ActiveModal.RebootShutdown -> refreshSystemHealthSection(silent = true)
                                     ActiveModal.IpBindings -> refreshIpBindingsSection(silent = true)
+                                    ActiveModal.ActiveSessions -> refreshActiveSessionsSection(silent = true)
                                     else -> Unit
                                 }
                             }

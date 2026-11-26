@@ -1450,6 +1450,7 @@ class MikroTikRestClient {
                     bytesIn = o.optString("bytes-in").toLongOrNull() ?: 0L,
                     bytesOut = o.optString("bytes-out").toLongOrNull() ?: 0L,
                     server = o.optString("server", "hotspot1"),
+                    idleTime = o.optString("idle-time", ""),
                 )
             )
         }

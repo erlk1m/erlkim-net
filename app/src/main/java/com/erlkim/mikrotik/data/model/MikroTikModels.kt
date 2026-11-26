@@ -222,7 +222,14 @@ data class HotspotActiveSession(
     val bytesIn: Long,
     val bytesOut: Long,
     val server: String = "hotspot1",
-)
+    val idleTime: String = "",
+) {
+    val isIdleLong: Boolean
+        get() {
+            val t = idleTime.lowercase()
+            return t.contains("m") || t.contains("h") || t.contains("d") || t.contains("w")
+        }
+}
 
 data class HotspotUserProfile(
     val id: String,

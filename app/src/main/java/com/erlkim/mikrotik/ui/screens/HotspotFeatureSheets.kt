@@ -457,8 +457,9 @@ fun ActiveSessionsSheet(
                                         style = MaterialTheme.typography.bodySmall.copy(fontFamily = JetBrainsMono),
                                         color = cs.onSurfaceVariant,
                                     )
+                                    val idleInfo = if (session.idleTime.isNotBlank() && session.idleTime != "0s") "  •  Idle: ${session.idleTime}" else ""
                                     Text(
-                                        text = "Uptime: ${session.uptime}  •  Traffic: ${formatBytes(session.bytesIn + session.bytesOut)}",
+                                        text = "Uptime: ${session.uptime}$idleInfo  •  Traffic: ${formatBytes(session.bytesIn + session.bytesOut)}",
                                         style = MaterialTheme.typography.bodySmall,
                                         color = cs.onSurfaceVariant,
                                     )

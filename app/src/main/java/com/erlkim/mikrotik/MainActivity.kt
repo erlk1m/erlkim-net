@@ -506,7 +506,7 @@ fun ErlkimNetApp(viewModel: ErlkimViewModel = viewModel()) {
                                         uiState = uiState,
                                         onNavigateBack = { navController.popBackStack() },
                                         onKickSession = viewModel::kickActiveSession,
-                                        onRefresh = viewModel::refreshNow,
+                                        onRefresh = { viewModel.refreshActiveSessionsSection(silent = false) },
                                     )
                                 }
 

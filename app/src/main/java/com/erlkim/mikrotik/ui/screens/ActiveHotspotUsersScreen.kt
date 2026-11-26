@@ -48,6 +48,7 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -83,6 +84,10 @@ fun ActiveHotspotUsersScreen(
     val ext = LocalErlkimColors.current
     var searchQuery by remember { mutableStateOf("") }
     val pullRefreshState = rememberPullToRefreshState()
+
+    LaunchedEffect(Unit) {
+        onRefresh()
+    }
 
     val filteredSessions = remember(uiState.activeSessions, searchQuery) {
         val q = searchQuery.trim()
@@ -485,10 +490,21 @@ fun ActiveHotspotUserCard(
                     )
                     Spacer(modifier = Modifier.width(5.dp))
                     Text(
-                        text = "Uptime: ${session.uptime}",
+                        text = "Up: ${session.uptime}",
                         style = MaterialTheme.typography.bodySmall.copy(fontFamily = JetBrainsMono),
                         color = cs.onSurfaceVariant,
                     )
+                    if (session.idleTime.isNotBlank() && session.idleTime != "0s") {
+                        Spacer(modifier = Modifier.width(7.dp))
+                        Text(
+                            text = "• Idle: ${session.idleTime}",
+                            style = MaterialTheme.typography.bodySmall.copy(
+                                fontFamily = JetBrainsMono,
+                                fontWeight = if (session.isIdleLong) FontWeight.SemiBold else FontWeight.Normal,
+                            ),
+                            color = if (session.isIdleLong) ext.demoAmber else cs.onSurfaceVariant,
+                        )
+                    }
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(

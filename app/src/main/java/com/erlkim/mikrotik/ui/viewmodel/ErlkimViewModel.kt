@@ -207,6 +207,8 @@ class ErlkimViewModel(application: Application) : AndroidViewModel(application) 
     private var isAppInForeground: Boolean = true
     private val cacheStaleThresholdMs: Long = 8_000L
     private val notifiedAlertKeys = mutableSetOf<String>()
+    private val dismissedRemoteLogIds = mutableSetOf<String>()
+    private val localLogCounter = java.util.concurrent.atomic.AtomicLong(0L)
     private var lastThroughputAlertEpochMs: Long = 0L
     private var lastCpuAlertEpochMs: Long = 0L
     private var lastMemoryAlertEpochMs: Long = 0L
@@ -859,9 +861,10 @@ class ErlkimViewModel(application: Application) : AndroidViewModel(application) 
                     it.running && !it.disabled && (it.name.contains("wan", true) || it.name.startsWith("ether1", true))
                 }?.name ?: snapshot.interfaces.firstOrNull { it.running && !it.disabled }?.name.orEmpty()
             }
-            val mergedLogs = if (snapshot.systemLogs.isNotEmpty()) {
+            val visibleRemoteLogs = snapshot.systemLogs.filterNot { it.id in dismissedRemoteLogIds }
+            val mergedLogs = if (visibleRemoteLogs.isNotEmpty()) {
                 val localOnly = state.logs.filter { it.id.startsWith("local_") }
-                (localOnly + snapshot.systemLogs).distinctBy { it.id }.take(140)
+                (localOnly + visibleRemoteLogs).distinctBy { it.id }.take(140)
             } else {
                 state.logs
             }
@@ -1342,6 +1345,7 @@ class ErlkimViewModel(application: Application) : AndroidViewModel(application) 
     fun refreshSystemLogs() {
         val current = _uiState.value
         if (current.isRefreshing) return
+        dismissedRemoteLogIds.clear()
         viewModelScope.launch {
             _uiState.update { it.copy(isRefreshing = true) }
             if (current.routerConfig.demoMode) {
@@ -1373,6 +1377,16 @@ class ErlkimViewModel(application: Application) : AndroidViewModel(application) 
                     _snackbarMessage.tryEmit("Gagal memuat log: ${err.message ?: "Error RouterOS"}")
                 }
         }
+    }
+
+    fun clearSystemLogs() {
+        _uiState.update { state ->
+            dismissedRemoteLogIds.addAll(
+                state.logs.asSequence().filterNot { it.id.startsWith("local_") }.map { it.id },
+            )
+            state.copy(logs = emptyList())
+        }
+        _snackbarMessage.tryEmit("Semua log telah dibersihkan")
     }
 
     fun updateUserSearch(query: String) {
@@ -1414,7 +1428,14 @@ class ErlkimViewModel(application: Application) : AndroidViewModel(application) 
             evaluateQuotaAlerts()
             _snackbarMessage.tryEmit(
                 if (normalized.enabled) {
-                    "Notifikasi kuota disimpan (Batas ${normalized.globalQuotaLimitMb} MB, Peringatan ${normalized.warningThresholdPercent}%)"
+                    val limitLabel = if (normalized.globalQuotaLimitMb == 0L) {
+                        "Hanya kuota per-user"
+                    } else if (normalized.globalQuotaLimitMb >= 1024L && normalized.globalQuotaLimitMb % 1024L == 0L) {
+                        "Batas ${normalized.globalQuotaLimitMb / 1024L} GB"
+                    } else {
+                        "Batas ${normalized.globalQuotaLimitMb} MB"
+                    }
+                    "Notifikasi kuota disimpan ($limitLabel, Peringatan ${normalized.warningThresholdPercent}%)"
                 } else {
                     "Notifikasi kuota bandwidth dinonaktifkan"
                 },
@@ -1525,17 +1546,41 @@ class ErlkimViewModel(application: Application) : AndroidViewModel(application) 
 
         if (newlyTriggered.isNotEmpty()) {
             val appContext = getApplication<Application>()
-            for (alert in newlyTriggered) {
-                if (config.systemNotificationsEnabled) {
+            val notifTargets = newlyTriggered
+                .sortedWith(
+                    compareByDescending<BandwidthQuotaAlert> { it.severity == QuotaAlertSeverity.EXCEEDED }
+                        .thenByDescending { it.usagePercent },
+                )
+                .take(3)
+            if (config.systemNotificationsEnabled) {
+                for (alert in notifTargets) {
                     QuotaNotificationHelper.showQuotaAlert(appContext, alert)
                 }
-                val isExceeded = alert.severity == QuotaAlertSeverity.EXCEEDED
+            }
+            if (newlyTriggered.size <= 3) {
+                for (alert in newlyTriggered) {
+                    val isExceeded = alert.severity == QuotaAlertSeverity.EXCEEDED
+                    appendLog(
+                        title = if (isExceeded) "Kuota Terlampaui: ${alert.username}" else "Peringatan Kuota: ${alert.username}",
+                        detail = "Penggunaan ${formatBytes(alert.usedBytes)} / ${formatBytes(alert.limitBytes)} (${alert.usagePercent}%) pada profil ${alert.profile}",
+                        isAlert = isExceeded,
+                        severity = if (isExceeded) LogSeverity.ERROR else LogSeverity.WARNING,
+                        topics = if (isExceeded) "hotspot,bandwidth,error" else "hotspot,bandwidth,warning",
+                    )
+                }
+            } else {
+                val exceededCount = newlyTriggered.count { it.severity == QuotaAlertSeverity.EXCEEDED }
+                val warningCount = newlyTriggered.size - exceededCount
+                val sampleNames = notifTargets.joinToString(", ") { it.username }
+                val extraCount = newlyTriggered.size - notifTargets.size
+                val suffix = if (extraCount > 0) " +$extraCount lainnya" else ""
+                val hasExceeded = exceededCount > 0
                 appendLog(
-                    title = if (isExceeded) "Kuota Terlampaui: ${alert.username}" else "Peringatan Kuota: ${alert.username}",
-                    detail = "Penggunaan ${formatBytes(alert.usedBytes)} / ${formatBytes(alert.limitBytes)} (${alert.usagePercent}%) pada profil ${alert.profile}",
-                    isAlert = isExceeded,
-                    severity = if (isExceeded) LogSeverity.ERROR else LogSeverity.WARNING,
-                    topics = if (isExceeded) "hotspot,bandwidth,error" else "hotspot,bandwidth,warning",
+                    title = "Ringkasan Kuota: ${newlyTriggered.size} user melewati batas",
+                    detail = "$exceededCount melebihi kuota, $warningCount mendekati batas ($sampleNames$suffix). Atur batas di Notifikasi Kuota Bandwidth.",
+                    isAlert = hasExceeded,
+                    severity = if (hasExceeded) LogSeverity.ERROR else LogSeverity.WARNING,
+                    topics = if (hasExceeded) "hotspot,bandwidth,error" else "hotspot,bandwidth,warning",
                 )
             }
             val top = newlyTriggered.firstOrNull { it.severity == QuotaAlertSeverity.EXCEEDED } ?: newlyTriggered.first()
@@ -2456,7 +2501,7 @@ class ErlkimViewModel(application: Application) : AndroidViewModel(application) 
     ) {
         val time = currentTimeString()
         val entry = RouterLogEntry(
-            id = "local_${System.currentTimeMillis()}_${title.hashCode()}",
+            id = "local_${System.currentTimeMillis()}_${localLogCounter.incrementAndGet()}",
             title = title,
             detail = detail,
             time = time,

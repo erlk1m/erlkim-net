@@ -551,6 +551,7 @@ fun ErlkimNetApp(viewModel: ErlkimViewModel = viewModel()) {
                                         uiState = uiState,
                                         onNavigateBack = { navController.popBackStack() },
                                         onRefreshLogs = viewModel::refreshSystemLogs,
+                                        onClearLogs = viewModel::clearSystemLogs,
                                     )
                                 }
                             }

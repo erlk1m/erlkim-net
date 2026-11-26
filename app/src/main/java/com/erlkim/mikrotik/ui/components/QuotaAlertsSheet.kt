@@ -357,7 +357,7 @@ fun QuotaAlertsSheet(
                 onValueChange = { globalLimitText = it.filter(Char::isDigit).take(7) },
                 label = { Text("Batas Kuota Default (MB)") },
                 supportingText = {
-                    Text("Dipakai untuk user tanpa limit-bytes-total khusus di RouterOS (0 = hanya cek kuota per-user)")
+                    Text("Berlaku untuk user tanpa limit-bytes-total di RouterOS. Isi 0 agar user Unlimited tidak dianggap melebihi kuota.")
                 },
                 leadingIcon = { Icon(Icons.Rounded.DataUsage, contentDescription = null) },
                 singleLine = true,
@@ -372,10 +372,19 @@ fun QuotaAlertsSheet(
             Spacer(modifier = Modifier.height(8.dp))
 
             // Quick Quota Presets
-            val presets = listOf(100L to "100 MB", 250L to "250 MB", 500L to "500 MB", 1024L to "1 GB", 2048L to "2 GB")
+            val presets = listOf(
+                0L to "Per-User (0)",
+                500L to "500 MB",
+                1024L to "1 GB",
+                2048L to "2 GB",
+                5120L to "5 GB",
+                10240L to "10 GB",
+                51200L to "50 GB",
+                102400L to "100 GB",
+            )
             LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 items(presets) { (mb, label) ->
-                    val selected = globalLimitText.toLongOrNull() == mb
+                    val selected = (globalLimitText.toLongOrNull() ?: 0L) == mb
                     Surface(
                         shape = RoundedCornerShape(10.dp),
                         color = if (selected) cs.primaryContainer else cs.surfaceContainerHigh,
@@ -439,7 +448,7 @@ fun QuotaAlertsSheet(
                     onSaveConfig(
                         QuotaAlertConfig(
                             enabled = enabled,
-                            globalQuotaLimitMb = globalLimitText.toLongOrNull() ?: 500L,
+                            globalQuotaLimitMb = globalLimitText.toLongOrNull() ?: 0L,
                             warningThresholdPercent = warningPercent,
                             systemNotificationsEnabled = systemNotifEnabled,
                         ),

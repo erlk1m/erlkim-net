@@ -290,7 +290,7 @@ enum class QuotaAlertSeverity(val label: String) {
 
 data class QuotaAlertConfig(
     val enabled: Boolean = true,
-    val globalQuotaLimitMb: Long = 500L,
+    val globalQuotaLimitMb: Long = 0L,
     val warningThresholdPercent: Int = 80,
     val systemNotificationsEnabled: Boolean = true,
 )

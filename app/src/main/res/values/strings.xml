@@ -159,6 +159,10 @@
     <string name="logs_search_hint">Cari pesan log atau topik…</string>
     <string name="logs_empty_title">Tidak ada log ditemukan</string>
     <string name="logs_empty_desc">Belum ada catatan log router untuk tingkat keparahan atau pencarian ini.</string>
+    <string name="cd_clear_logs">Hapus semua log</string>
+    <string name="logs_clear_confirm_title">Hapus semua log?</string>
+    <string name="logs_clear_confirm_desc">Semua log lokal dan daftar log yang ditampilkan saat ini akan dibersihkan. Ketuk Refresh untuk memuat ulang log dari RouterOS.</string>
+    <string name="logs_clear_confirm_action">Hapus Semua</string>
 
     <!-- Add User Dialog -->
     <string name="add_user_dialog_title">Add User</string>

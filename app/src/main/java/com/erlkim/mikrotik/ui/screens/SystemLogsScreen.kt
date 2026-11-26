@@ -24,11 +24,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.automirrored.rounded.ReceiptLong
 import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.DeleteSweep
 import androidx.compose.material.icons.rounded.ErrorOutline
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.WarningAmber
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -37,6 +40,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -73,6 +77,7 @@ fun SystemLogsScreen(
     uiState: ErlkimUiState,
     onNavigateBack: () -> Unit,
     onRefreshLogs: () -> Unit,
+    onClearLogs: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val cs = MaterialTheme.colorScheme
@@ -81,6 +86,7 @@ fun SystemLogsScreen(
 
     var selectedFilter by remember { mutableStateOf(LogSeverityFilter.ALL) }
     var searchQuery by remember { mutableStateOf("") }
+    var showClearConfirm by remember { mutableStateOf(false) }
 
     val infoCount = remember(uiState.logs) { uiState.logs.count { it.severity == LogSeverity.INFO } }
     val warnCount = remember(uiState.logs) { uiState.logs.count { it.severity == LogSeverity.WARNING } }
@@ -148,6 +154,16 @@ fun SystemLogsScreen(
                 }
             },
             actions = {
+                IconButton(
+                    onClick = { showClearConfirm = true },
+                    enabled = uiState.logs.isNotEmpty(),
+                    modifier = Modifier.testTag("system_logs_clear_button"),
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.DeleteSweep,
+                        contentDescription = stringResource(R.string.cd_clear_logs),
+                    )
+                }
                 IconButton(
                     onClick = onRefreshLogs,
                     modifier = Modifier.testTag("system_logs_refresh_button"),
@@ -360,6 +376,31 @@ fun SystemLogsScreen(
                 }
             }
         }
+    }
+
+    if (showClearConfirm) {
+        AlertDialog(
+            onDismissRequest = { showClearConfirm = false },
+            title = { Text(stringResource(R.string.logs_clear_confirm_title)) },
+            text = { Text(stringResource(R.string.logs_clear_confirm_desc)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showClearConfirm = false
+                        onClearLogs()
+                    },
+                    colors = ButtonDefaults.textButtonColors(contentColor = cs.error),
+                    modifier = Modifier.testTag("system_logs_clear_confirm_button"),
+                ) {
+                    Text(stringResource(R.string.logs_clear_confirm_action))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showClearConfirm = false }) {
+                    Text(stringResource(R.string.action_cancel))
+                }
+            },
+        )
     }
 }
 

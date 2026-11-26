@@ -278,7 +278,13 @@ fun SettingsScreen(
             action = SettingsItemAction.QUOTA_ALERTS,
             title = stringResource(R.string.setting_quota_alerts),
             subtitle = if (uiState.quotaAlertConfig.enabled) {
-                "Batas ${uiState.quotaAlertConfig.globalQuotaLimitMb} MB (${uiState.quotaAlertConfig.warningThresholdPercent}%)"
+                val limitMb = uiState.quotaAlertConfig.globalQuotaLimitMb
+                val limitText = when {
+                    limitMb == 0L -> "Hanya kuota per-user"
+                    limitMb >= 1024L && limitMb % 1024L == 0L -> "Batas ${limitMb / 1024L} GB"
+                    else -> "Batas $limitMb MB"
+                }
+                "$limitText (${uiState.quotaAlertConfig.warningThresholdPercent}%)"
             } else {
                 "Pemantauan kuota bandwidth nonaktif"
             },

@@ -413,7 +413,7 @@ object RouterBackupManager {
         val quotaCfg = root.optJSONObject("quotaAlertConfig")?.let { q ->
             QuotaAlertConfig(
                 enabled = q.optBoolean("enabled", true),
-                globalQuotaLimitMb = q.optLong("globalQuotaLimitMb", 500L).coerceIn(10L, 1_000_000L),
+                globalQuotaLimitMb = q.optLong("globalQuotaLimitMb", 0L).coerceIn(0L, 10_000_000L),
                 warningThresholdPercent = q.optInt("warningThresholdPercent", 80).coerceIn(50, 99),
                 systemNotificationsEnabled = q.optBoolean("systemNotificationsEnabled", true),
             )

@@ -583,8 +583,13 @@ fun BackupRestoreSheet(
                                 onCheckedChange = { restoreOptions = restoreOptions.copy(restoreIpAddresses = it) },
                             )
                             if (p.quotaAlertConfig != null) {
+                                val limitLabel = if (p.quotaAlertConfig.globalQuotaLimitMb == 0L) {
+                                    "Per-User"
+                                } else {
+                                    "${p.quotaAlertConfig.globalQuotaLimitMb} MB"
+                                }
                                 RestoreOptionRow(
-                                    label = "Bandwidth Quota Alert Rules (${p.quotaAlertConfig.globalQuotaLimitMb} MB)",
+                                    label = "Bandwidth Quota Alert Rules ($limitLabel)",
                                     checked = restoreOptions.restoreQuotaConfig,
                                     enabled = true,
                                     onCheckedChange = { restoreOptions = restoreOptions.copy(restoreQuotaConfig = it) },

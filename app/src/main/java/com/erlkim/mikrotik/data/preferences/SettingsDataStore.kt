@@ -71,7 +71,7 @@ class SettingsDataStore(private val context: Context) {
             dynamicColor = prefs[Keys.DYNAMIC_COLOR] ?: false,
             quotaAlertConfig = QuotaAlertConfig(
                 enabled = prefs[Keys.QUOTA_ALERT_ENABLED] ?: true,
-                globalQuotaLimitMb = (prefs[Keys.QUOTA_GLOBAL_LIMIT_MB] ?: 500L).coerceAtLeast(0L),
+                globalQuotaLimitMb = (prefs[Keys.QUOTA_GLOBAL_LIMIT_MB] ?: 0L).coerceAtLeast(0L),
                 warningThresholdPercent = (prefs[Keys.QUOTA_WARNING_PERCENT] ?: 80).coerceIn(50, 99),
                 systemNotificationsEnabled = prefs[Keys.QUOTA_SYSTEM_NOTIF] ?: true,
             ),

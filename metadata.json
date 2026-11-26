@@ -1,0 +1,6 @@
+{
+  "name": "Erlkim NET",
+  "description": "Aplikasi kontrol dan monitoring MikroTik RouterOS (Dashboard, Hotspot, Users, dan Settings) dengan desain Material 3.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

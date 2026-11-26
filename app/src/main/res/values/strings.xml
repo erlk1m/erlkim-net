@@ -1,0 +1,281 @@
+<resources>
+    <string name="app_name">Erlkim NET</string>
+
+    <!-- Navigation Labels -->
+    <string name="nav_dashboard">Dashboard</string>
+    <string name="nav_users">Users</string>
+    <string name="nav_hotspot">Hotspot</string>
+    <string name="nav_settings">Settings</string>
+
+    <!-- Screen Titles -->
+    <string name="title_dashboard">ErlkimNET</string>
+    <string name="title_hotspot">Erlkim NET - Hotspot</string>
+    <string name="title_users">Erlkim NET - Users</string>
+    <string name="title_settings">Erlkim NET - Settings</string>
+
+    <!-- Content Descriptions -->
+    <string name="cd_brand_logo">Logo ErlkimNET</string>
+    <string name="cd_open_menu">Buka menu navigasi</string>
+    <string name="cd_notifications">Notifikasi dan log router</string>
+    <string name="cd_router_profile">Profil koneksi router</string>
+    <string name="cd_navigate_back">Kembali</string>
+    <string name="cd_more_options">Opsi lainnya</string>
+    <string name="cd_search">Cari</string>
+    <string name="cd_clear_search">Hapus pencarian</string>
+    <string name="cd_refresh">Segarkan data router</string>
+    <string name="cd_add_user">Tambah pengguna hotspot</string>
+    <string name="cd_chevron">Buka detail</string>
+
+    <!-- Actions -->
+    <string name="action_add_user">Add User</string>
+    <string name="action_connect_router">Hubungkan Router</string>
+    <string name="action_demo_mode">Mode Demo</string>
+    <string name="action_save">Simpan</string>
+    <string name="action_cancel">Batal</string>
+    <string name="action_close">Tutup</string>
+    <string name="action_delete">Hapus</string>
+    <string name="action_disconnect">Putuskan</string>
+    <string name="action_reboot">Reboot</string>
+    <string name="action_shutdown">Shutdown</string>
+
+    <!-- Dashboard -->
+    <string name="status_connected_online">Terhubung (Online)</string>
+    <string name="status_connected_demo">Mode Demo (Simulasi)</string>
+    <string name="status_connecting">Menghubungkan…</string>
+    <string name="status_offline">Terputus (Offline)</string>
+    <string name="label_cpu">CPU</string>
+    <string name="label_ram">RAM</string>
+    <string name="label_storage">Storage</string>
+    <string name="label_download">Unduh</string>
+    <string name="label_upload">Unggah</string>
+    <string name="summary_section_title">RINGKASAN ROUTER</string>
+    <string name="summary_uptime">Uptime</string>
+    <string name="summary_cpu_load">CPU Load</string>
+    <string name="summary_active_users">User Aktif</string>
+
+    <!-- Quick Grid Tiles -->
+    <string name="tile_hotspot">Hotspot</string>
+    <string name="tile_interfaces">Interfaces</string>
+    <string name="tile_dhcp_server">DHCP Server</string>
+    <string name="tile_wireless">Wireless</string>
+    <string name="tile_ip_addresses">IP Addresses</string>
+    <string name="tile_system_reboot">System &amp; Reboot</string>
+
+    <!-- Hotspot -->
+    <string name="hotspot_status_title">Hotspot Status</string>
+    <string name="hotspot_badge_active">Active</string>
+    <string name="hotspot_badge_inactive">Inactive</string>
+    <string name="hotspot_card_users">Users</string>
+    <string name="hotspot_card_users_desc">Manage users &amp; profiles</string>
+    <string name="hotspot_card_active_sessions">Active Sessions</string>
+    <string name="hotspot_card_active_sessions_desc">Monitor current users</string>
+    <string name="hotspot_card_walled_garden">Walled Garden</string>
+    <string name="hotspot_card_walled_garden_desc">Bypass websites</string>
+    <string name="hotspot_card_ip_bindings">IP Bindings</string>
+    <string name="hotspot_card_ip_bindings_desc">Static IP assignments</string>
+    <string name="hotspot_card_servers">Hotspot Servers</string>
+    <string name="hotspot_card_servers_desc">Configure servers</string>
+    <string name="hotspot_card_profiles">User Profiles</string>
+    <string name="hotspot_card_profiles_desc">Bandwidth &amp; limits</string>
+    <string name="hotspot_tab_users">Users</string>
+    <string name="hotspot_tab_profiles">Profiles</string>
+    <string name="hotspot_tab_server">Server</string>
+    <string name="hotspot_tab_walled_garden">Walled Garden</string>
+
+    <!-- Users -->
+    <string name="search_placeholder">Cari nama user atau IP address…</string>
+    <string name="filter_all">All</string>
+    <string name="filter_active">Active</string>
+    <string name="filter_expired">Expired</string>
+    <string name="filter_vip">VIP</string>
+    <string name="section_active">AKTIF</string>
+    <string name="section_inactive">TIDAK AKTIF</string>
+    <string name="users_select_mode">Pilih Massal</string>
+    <string name="users_select_all">Pilih Semua</string>
+    <string name="users_deselect_all">Batal Pilih Semua</string>
+    <string name="users_bulk_delete">Hapus Massal</string>
+    <string name="users_bulk_deleting">Menghapus…</string>
+    <string name="users_bulk_delete_confirm_title">Hapus User Terpilih?</string>
+    <string name="users_bulk_delete_confirm_action">Hapus Sekarang</string>
+    <string name="cd_select_users">Mode seleksi massal user</string>
+    <string name="cd_exit_selection">Keluar dari mode seleksi</string>
+
+    <!-- Settings -->
+    <string name="section_connection_network">Koneksi &amp; Jaringan</string>
+    <string name="section_monitoring_alerts">Peringatan &amp; Pemantauan</string>
+    <string name="section_system">Sistem &amp; Keamanan</string>
+    <string name="section_application">Tampilan &amp; Aplikasi</string>
+    <string name="setting_ip_config">Konfigurasi IP (LAN/WAN)</string>
+    <string name="setting_ip_config_desc">Kelola alamat IP, gateway, &amp; subnet</string>
+    <string name="setting_dhcp_server">DHCP Server &amp; Leases</string>
+    <string name="setting_dhcp_server_desc">Server DHCP, IP statis, &amp; perangkat aktif</string>
+    <string name="setting_wireless">Wireless &amp; Wi-Fi</string>
+    <string name="setting_wireless_desc">Atur SSID, band, &amp; status interface Wi-Fi</string>
+    <string name="setting_hotspot_userman">Hotspot &amp; User Manager</string>
+    <string name="setting_hotspot_userman_desc">Server hotspot, profil limit, &amp; voucher</string>
+    <string name="setting_ip_bindings">IP Bindings Hotspot</string>
+    <string name="setting_ip_bindings_desc">Bypass, blokir, &amp; translasi IP perangkat</string>
+    <string name="setting_identity_time">Identitas &amp; Waktu</string>
+    <string name="setting_identity_time_desc">Nama router, zona waktu, &amp; NTP</string>
+    <string name="setting_users_security">Pengguna &amp; Keamanan</string>
+    <string name="setting_users_security_desc">Kredensial API RouterOS &amp; akun admin</string>
+    <string name="setting_backup_restore">Backup &amp; Restore</string>
+    <string name="setting_backup_restore_desc">Export &amp; import file konfigurasi (.json / .rsc / .backup)</string>
+    <string name="setting_reboot_shutdown">Reboot &amp; Shutdown</string>
+    <string name="setting_reboot_shutdown_desc">Mulai ulang atau matikan perangkat router</string>
+    <string name="setting_theme">Tema &amp; Tampilan</string>
+    <string name="setting_theme_desc">Gelap / Terang, Material You</string>
+    <string name="setting_about">Tentang Aplikasi</string>
+    <string name="setting_about_desc">Versi aplikasi &amp; dokumentasi RouterOS API</string>
+
+    <!-- Router Settings Sheet -->
+    <string name="router_settings_title">Router Settings</string>
+    <string name="router_settings_subtitle">MikroTik RouterOS v7+ REST API</string>
+    <string name="router_settings_ip_label">IP Address / Host</string>
+    <string name="router_settings_port_label">Port</string>
+    <string name="router_settings_username_label">Username</string>
+    <string name="router_settings_password_label">Password</string>
+    <string name="router_settings_save_only">Simpan</string>
+    <string name="router_settings_save_connect">Simpan &amp; Hubungkan</string>
+    <string name="router_settings_test_connection">Test Connection</string>
+    <string name="router_settings_testing">Testing connection…</string>
+    <string name="router_settings_reset">Reset Default</string>
+
+    <!-- Active Hotspot Users Screen -->
+    <string name="title_active_hotspot_users">Active Hotspot Users</string>
+    <string name="active_users_search_hint">Cari username, IP, atau MAC address…</string>
+    <string name="active_users_empty_title">Belum ada user hotspot aktif</string>
+    <string name="active_users_empty_desc">Perangkat yang sedang login ke Hotspot akan tampil beserta IP dan MAC address.</string>
+    <string name="label_ip_address">IP Address</string>
+    <string name="label_mac_address">MAC Address</string>
+    <string name="cd_kick_session">Putuskan sesi user</string>
+    <string name="action_disconnect_user">Disconnect</string>
+    <string name="action_view_all">Lihat Semua</string>
+
+    <!-- System Logs Screen -->
+    <string name="title_system_logs">System Logs</string>
+    <string name="setting_system_logs">System Logs</string>
+    <string name="setting_system_logs_desc">Pantau log RouterOS (Info, Warning, Error)</string>
+    <string name="logs_search_hint">Cari pesan log atau topik…</string>
+    <string name="logs_empty_title">Tidak ada log ditemukan</string>
+    <string name="logs_empty_desc">Belum ada catatan log router untuk tingkat keparahan atau pencarian ini.</string>
+
+    <!-- Add User Dialog -->
+    <string name="add_user_dialog_title">Add User</string>
+    <string name="add_user_dialog_subtitle">Create new Hotspot credentials</string>
+    <string name="add_user_username_label">Username</string>
+    <string name="add_user_username_placeholder">e.g. user_budi</string>
+    <string name="add_user_password_label">Password</string>
+    <string name="add_user_password_placeholder">Enter or generate password</string>
+    <string name="add_user_profile_label">Profile</string>
+    <string name="add_user_profile_loading">Loading profiles from router…</string>
+    <string name="add_user_profile_empty">No profiles available from router</string>
+    <string name="cd_refresh_profiles">Refresh hotspot profiles from router</string>
+    <string name="add_user_comment_label">Comment (Optional)</string>
+    <string name="add_user_comment_placeholder">e.g. Room 204 / Monthly VIP</string>
+    <string name="add_user_quota_label">Data Limit in MB (Optional, 0 = Unlimited)</string>
+    <string name="add_user_submit">Create User</string>
+    <string name="add_user_submitting">Sending…</string>
+    <string name="cd_toggle_password">Toggle password visibility</string>
+    <string name="cd_generate_password">Generate random password</string>
+    <string name="cd_toggle_dark_mode">Ubah tema gelap atau terang</string>
+    <string name="theme_night_comfort_desc">Sesuaikan tampilan aplikasi, termasuk mode Gelap, Terang, Sistem, dan tema spesial Anime Sakura.</string>
+    <string name="theme_sakura_desc">Palet kelopak sakura &amp; langit senja bergaya anime</string>
+    <string name="theme_sakura_dynamic_note">Dinonaktifkan sementara saat menggunakan tema Anime Sakura agar palet sakura tetap optimal.</string>
+
+    <!-- Hotspot User QR Code -->
+    <string name="qr_dialog_title">Hotspot Login QR</string>
+    <string name="qr_dialog_subtitle">Scan to log in to MikroTik Hotspot</string>
+    <string name="qr_mode_login_url">Auto-Login URL</string>
+    <string name="qr_mode_credentials">Credentials</string>
+    <string name="qr_portal_host_label">Hotspot Portal Host / DNS</string>
+    <string name="qr_portal_host_placeholder">192.168.88.1 or hotspot.erlkim.net</string>
+    <string name="qr_action_show">Login QR Code</string>
+    <string name="qr_action_copy">Copy</string>
+    <string name="qr_action_copied">Copied!</string>
+    <string name="qr_action_share">Share</string>
+    <string name="cd_show_user_qr">Generate login QR code</string>
+
+    <!-- Bandwidth Quota Notifications -->
+    <string name="quota_alerts_title">Notifikasi Kuota Bandwidth</string>
+    <string name="quota_alerts_subtitle">Pantau user yang mendekati atau melebihi batas kuota</string>
+    <string name="setting_quota_alerts">Notifikasi Kuota Bandwidth</string>
+    <string name="quota_badge_exceeded">MELEBIHI KUOTA</string>
+    <string name="quota_badge_warning">MENDEKATI BATAS</string>
+    <string name="quota_empty_title">Semua user dalam batas kuota</string>
+    <string name="quota_empty_desc">Tidak ada user hotspot yang melebihi atau mendekati ambang batas bandwidth saat ini.</string>
+    <string name="quota_save_settings">Simpan Pengaturan Kuota</string>
+    <string name="quota_open_system_logs">Lihat System Logs</string>
+    <string name="quota_mark_all_read">Tandai Semua Dibaca</string>
+
+    <!-- Router Configuration Backup Export & Import -->
+    <string name="backup_sheet_title">Backup &amp; Recovery</string>
+    <string name="backup_sheet_subtitle">Export &amp; import router configuration files</string>
+    <string name="backup_tab_export">Export</string>
+    <string name="backup_tab_import">Import &amp; Restore</string>
+    <string name="backup_action_export_file">Export Backup File</string>
+    <string name="backup_action_choose_file">Choose Backup File</string>
+    <string name="backup_action_restore_now">Restore Configuration</string>
+    <string name="backup_action_router_save">Save to Router Flash</string>
+    <string name="backup_format_json">JSON Backup (.json)</string>
+    <string name="backup_format_rsc">RouterOS Script (.rsc)</string>
+
+    <!-- Ping Diagnostic Tool -->
+    <string name="ping_card_title">Ping Diagnostic</string>
+    <string name="ping_card_subtitle">Verify gateway or custom IP latency (ms)</string>
+    <string name="ping_host_placeholder">Gateway or custom IP (e.g. 1.1.1.1)</string>
+    <string name="ping_action_run">Ping</string>
+    <string name="ping_action_stop">Stop</string>
+
+    <!-- Hotspot User Session Timeout -->
+    <string name="session_timeout_label">Session Timeout</string>
+    <string name="session_timeout_helper">Set RouterOS limit-uptime (blank = Unlimited)</string>
+    <string name="session_timeout_input_label">Duration (e.g. 1h, 3h, 1d)</string>
+    <string name="session_timeout_placeholder">Leave empty for Unlimited</string>
+    <string name="session_timeout_invalid">Use RouterOS format like 30m, 2h30m, 1d, or 01:30:00</string>
+    <string name="session_timeout_save">Save Session Timeout</string>
+    <string name="change_password_title">Ganti Password</string>
+    <string name="change_password_helper">Ubah password login hotspot user di router MikroTik</string>
+    <string name="change_password_input_label">Password Baru</string>
+    <string name="change_password_placeholder">Masukkan atau generate password baru</string>
+    <string name="change_password_save">Simpan Password</string>
+
+    <!-- Network Throughput Threshold Alerts -->
+    <string name="setting_throughput_alerts">Peringatan Lonjakan Trafik</string>
+    <string name="throughput_alerts_title">Peringatan Lonjakan Trafik</string>
+    <string name="throughput_alerts_subtitle">Kirim peringatan real-time saat total trafik melebihi batas Mbps</string>
+    <string name="throughput_save_settings">Simpan Pengaturan Batas</string>
+    <string name="throughput_empty_title">Belum ada peringatan trafik</string>
+    <string name="throughput_empty_desc">Total throughput jaringan (Unduh + Unggah) masih dalam batas yang ditentukan.</string>
+
+    <!-- Router CPU & Memory Threshold Alerts -->
+    <string name="setting_resource_alerts">Peringatan CPU &amp; Memori</string>
+    <string name="resource_alerts_title">Peringatan CPU &amp; Memori</string>
+    <string name="resource_alerts_subtitle">Kirim notifikasi saat beban CPU atau RAM router melebihi batas persentase</string>
+    <string name="resource_save_settings">Simpan Batas Resource</string>
+    <string name="resource_empty_title">Resource router dalam kondisi normal</string>
+    <string name="resource_empty_desc">Beban CPU dan penggunaan Memori masih berada di bawah batas persentase.</string>
+
+    <!-- Top Bar Connection Status Indicator -->
+    <string name="cd_connection_online">Status router online</string>
+    <string name="cd_connection_demo">Status router mode demo</string>
+    <string name="cd_connection_connecting">Menghubungkan ke router</string>
+    <string name="cd_connection_offline">Status router offline</string>
+
+    <!-- About App Sheet -->
+    <string name="about_version_badge">Versi 1.0 • Material Design 3</string>
+    <string name="about_description">ErlkimNET adalah aplikasi kontrol dan pemantauan MikroTik RouterOS v7+ berbasis REST API. Dirancang untuk mengelola Dashboard trafik real-time, Hotspot &amp; User Manager, Profil, IP Bindings, Walled Garden, Interfaces, IP Addresses, DHCP Server, Wireless, System Logs, peringatan otomatis, hingga Backup &amp; Restore router dengan mudah dari satu tempat.</string>
+    <string name="about_credit_title">Dikembangkan Bersama Gemini Neo 4</string>
+    <string name="about_credit_desc">Aplikasi ini turut dirancang, disempurnakan, dan dibangun bersama Gemini Neo 4 untuk menghadirkan antarmuka yang modern, responsif, dan stabil dalam mengelola jaringan MikroTik.</string>
+    <string name="about_spec_section">INFORMASI TEKNIS</string>
+    <string name="about_spec_version_label">Versi Aplikasi</string>
+    <string name="about_spec_version_value">1.0.0 (RouterOS v7+)</string>
+    <string name="about_spec_collab_label">Pengembangan</string>
+    <string name="about_spec_collab_value">ErlkimNET × Gemini Neo 4</string>
+    <string name="about_spec_protocol_label">Protokol</string>
+    <string name="about_spec_protocol_value">RouterOS v7 REST API (HTTP/HTTPS)</string>
+    <string name="about_spec_auth_label">Autentikasi</string>
+    <string name="about_spec_auth_value">HTTP Basic Auth</string>
+    <string name="about_spec_ui_label">Antarmuka</string>
+    <string name="about_spec_ui_value">Jetpack Compose Material 3</string>
+</resources>

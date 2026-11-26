@@ -59,7 +59,7 @@
 
 ### 4. Sistem, Keamanan & Backup
 - **Identitas & Waktu Router**: Ubah *System Identity* router serta lihat informasi jam, tanggal, zona waktu, dan uptime router.
-- **System Logs**: Pantau log RouterOS dengan filter tingkat keparahan (**All**, **Info**, **Warning**, **Error**) dan pencarian pesan/topik.
+- **System Logs**: Pantau log RouterOS dengan filter tingkat keparahan (**All**, **Info**, **Warning**, **Error**), pencarian pesan/topik, serta aksi **Hapus Semua Log (Clear All Logs)** yang tersinkronisasi langsung dengan memori router (`POST /system/logging/action/clear` dengan fallback penyesuaian `memory-lines`).
 - **Pengguna & Keamanan**: Lihat daftar akun admin RouterOS (`/rest/user`) beserta grup dan waktu login terakhir, serta akses cepat pengaturan kredensial API.
 - **Backup & Restore**:
   - **Backup Internal Router**: Simpan file `.backup` langsung ke flash router (`system/backup/save`) dan muat ulang (`system/backup/load`).
@@ -84,15 +84,18 @@
 | **Arsitektur** | MVVM (`AndroidViewModel`, `StateFlow`, `SharedFlow`, `collectAsStateWithLifecycle`) |
 | **Navigasi** | Jetpack Navigation Compose (`2.8.9`) |
 | **Asinkron & Konkurensi** | Kotlin Coroutines & Flow (`1.10.2`) |
-| **Android Build** | AGP `9.1.1`, `minSdk 24` (Android 7.0), `targetSdk 36`, `compileSdk 36`, Java 11 |
+| **Lifecycle & State** | AndroidX Lifecycle (`2.8.7`) dengan runtime Compose & ViewModel |
+| **Android Build** | AGP `9.1.1`, `compileSdk 36.1` (Android 16), `targetSdk 36`, `minSdk 24` (Android 7.0+), Java 11 |
+| **Optimasi APK Rilis** | R8 / ProGuard Minify + Resource Shrinking, Locale Filtering (`id`, `en`), Ukuran Rilis **~2.47 MB** (Budget < 3.0 MB) |
 
 ### Pustaka (Libraries) Utama
-- **Networking**: **OkHttp (`4.10.0`)** untuk klien MikroTik REST API (HTTP Basic Auth, TLS/SSL self-signed LAN, JSON payload) serta Retrofit (`2.12.0`) & Moshi (`1.15.2`).
-- **Penyimpanan Lokal**: **Jetpack DataStore Preferences (`1.1.7`)** untuk menyimpan konfigurasi koneksi router, preferensi tema, serta ambang batas notifikasi kuota, trafik, dan resource.
-- **QR Code Generator**: **ZXing Core (`3.5.3`)** untuk menghasilkan matriks QR Code login Hotspot secara lokal.
-- **Tipografi**: Font lokal **Plus Jakarta Sans**, **Inter**, dan **JetBrains Mono** (untuk angka metrik, IP, MAC, dan log).
-- **Ikon & Grafis**: Material Icons Core & Extended, serta custom Canvas untuk grafik trafik real-time dan rendering QR Code.
-- **Pengujian**: JUnit 4, Kotlinx Coroutines Test, dan Robolectric (`4.16.1`).
+- **Networking**: **OkHttp (`4.10.0`)** murni untuk klien MikroTik REST API (`/rest/...`) dengan HTTP Basic Auth, pooling koneksi HTTP keep-alive, parallel async fetching snapshot router, dan bypass validasi sertifikat SSL/TLS untuk router lokal (LAN self-signed). *(Catatan: Aplikasi tidak menggunakan library pihak ketiga yang membengkakkan ukuran seperti Retrofit atau Moshi).*
+- **JSON Serialization**: Native Android **`org.json` (`JSONObject`, `JSONArray`)** — sangat ringan, cepat, dan zero third-party overhead sehingga ukuran binary APK rilis tetap di bawah 2.5 MB.
+- **Penyimpanan Lokal**: **Jetpack DataStore Preferences (`1.1.7`)** untuk menyimpan konfigurasi koneksi router, preferensi tema, serta ambang batas notifikasi kuota, trafik, dan resource secara non-blocking (DataStore async Flow).
+- **QR Code Generator**: **ZXing Core (`3.5.3`)** untuk menghasilkan matriks QR Code login Hotspot secara offline dan lokal.
+- **Tipografi**: Font lokal berlisensi open-source **Plus Jakarta Sans**, **Inter**, dan **JetBrains Mono** (untuk angka metrik, IP, MAC, dan log).
+- **Ikon & Grafis**: Material Icons Core & Extended, serta custom Android Canvas untuk visualisasi grafik trafik real-time RX/TX dan rendering QR Code.
+- **Pengujian (Testing)**: JUnit 4 (`4.13.2`), Robolectric (`4.16.1`), Kotlinx Coroutines Test (`1.10.2`), AndroidX Test Ext JUnit (`1.3.0`), dan Compose UI Test.
 
 ### Struktur Proyek Ringkas
 ```text
@@ -188,11 +191,11 @@ Semua request dikirim ke `http(s)://<host>:<port>/rest/<endpoint>` dengan header
 
 | Kategori | Endpoint REST API | Operasi |
 |---|---|---|
-| **Sistem & Kesehatan** | `system/resource`, `system/identity`, `system/clock`, `log`, `user` | `GET`, `POST` (`system/identity/set`, `system/reboot`, `system/shutdown`) |
+| **Sistem & Kesehatan** | `system/resource`, `system/identity`, `system/clock`, `log`, `user`, `system/logging/action`, `system/logging/action/clear` | `GET`, `PATCH`, `POST` (`system/identity/set`, `system/reboot`, `system/shutdown`, `system/logging/action/clear`) |
 | **Backup Router** | `system/backup/save`, `system/backup/load` | `POST` |
 | **Interfaces & Trafik** | `interface`, `interface/monitor-traffic`, `interface/reset-counters` | `GET`, `PATCH`, `POST` |
-| **IP & DHCP** | `ip/address`, `ip/dhcp-server`, `ip/dhcp-server/lease`, `ip/dhcp-server/lease/make-static` | `GET`, `PUT`, `PATCH`, `DELETE`, `POST` |
-| **Wireless / Wi-Fi** | `interface/wireless` atau `interface/wifi` | `GET`, `PATCH` |
+| **IP & DHCP** | `ip/address`, `ip/dhcp-server`, `ip/dhcp-server/lease`, `ip/dhcp-server/lease/make-static` | `GET`, `PUT`, `PATCH`, `DELETE`, `POST` (`make-static` dengan body `{"numbers": "<id>"}`) |
+| **Wireless / Wi-Fi** | `interface/wireless` atau `interface/wifi`, `interface/wireless/registration-table`, `interface/wifi/registration-table` | `GET`, `PATCH` |
 | **Hotspot** | `ip/hotspot`, `ip/hotspot/user`, `ip/hotspot/active`, `ip/hotspot/user/profile`, `ip/hotspot/ip-binding`, `ip/hotspot/walled-garden` | `GET`, `PUT`, `PATCH`, `DELETE` |
 | **Diagnostik** | `ping` | `POST` |
 
@@ -207,5 +210,6 @@ Jika Anda belum terhubung ke perangkat MikroTik fisik, Anda dapat mengaktifkan *
 ## Kebutuhan Lingkungan Build
 
 - **JDK**: Java 11 atau lebih baru
-- **Android SDK**: Compile SDK 36 (`minSdk 24`, `targetSdk 36`)
-- **Gradle**: Kotlin DSL (`build.gradle.kts`) dengan Version Catalog (`gradle/libs.versions.toml`)
+- **Android SDK**: Compile SDK 36.1 (`compileSdk { version = release(36) { minorApiLevel = 1 } }`), `minSdk 24` (Android 7.0+), `targetSdk 36`
+- **Gradle**: Kotlin DSL (`build.gradle.kts`) dengan Version Catalog (`gradle/libs.versions.toml`) dan AGP `9.1.1`
+- **Target Ukuran Binary**: APK Release rilis ter-obfuscate R8 berada di kisaran **~2.47 MB** (budget maks. 3.0 MB)

@@ -734,4 +734,8 @@ class DemoRouterEngine {
             skippedCount = skipped,
         )
     }
+
+    fun clearLogs() {
+        systemLogs.clear()
+    }
 }

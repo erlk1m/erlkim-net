@@ -207,7 +207,6 @@ class ErlkimViewModel(application: Application) : AndroidViewModel(application) 
     private var isAppInForeground: Boolean = true
     private val cacheStaleThresholdMs: Long = 8_000L
     private val notifiedAlertKeys = mutableSetOf<String>()
-    private val dismissedRemoteLogIds = mutableSetOf<String>()
     private val localLogCounter = java.util.concurrent.atomic.AtomicLong(0L)
     private var lastThroughputAlertEpochMs: Long = 0L
     private var lastCpuAlertEpochMs: Long = 0L
@@ -861,13 +860,8 @@ class ErlkimViewModel(application: Application) : AndroidViewModel(application) 
                     it.running && !it.disabled && (it.name.contains("wan", true) || it.name.startsWith("ether1", true))
                 }?.name ?: snapshot.interfaces.firstOrNull { it.running && !it.disabled }?.name.orEmpty()
             }
-            val visibleRemoteLogs = snapshot.systemLogs.filterNot { it.id in dismissedRemoteLogIds }
-            val mergedLogs = if (visibleRemoteLogs.isNotEmpty()) {
-                val localOnly = state.logs.filter { it.id.startsWith("local_") }
-                (localOnly + visibleRemoteLogs).distinctBy { it.id }.take(140)
-            } else {
-                state.logs
-            }
+            val localOnly = state.logs.filter { it.id.startsWith("local_") }
+            val mergedLogs = (localOnly + snapshot.systemLogs).distinctBy { it.id }.take(140)
             val resolvedHistory = if (initialHistory != null) {
                 val buf = interfaceHistoryBuffers.getOrPut(defaultIface) { mutableListOf() }
                 buf.clear()
@@ -1345,10 +1339,9 @@ class ErlkimViewModel(application: Application) : AndroidViewModel(application) 
     fun refreshSystemLogs() {
         val current = _uiState.value
         if (current.isRefreshing) return
-        dismissedRemoteLogIds.clear()
         viewModelScope.launch {
             _uiState.update { it.copy(isRefreshing = true) }
-            if (current.routerConfig.demoMode) {
+            if (current.routerConfig.demoMode || current.connectionStatus is ConnectionStatus.ConnectedDemo) {
                 delay(400L)
                 val demoLogs = demoEngine.snapshot().systemLogs
                 _uiState.update { state ->
@@ -1380,13 +1373,31 @@ class ErlkimViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun clearSystemLogs() {
-        _uiState.update { state ->
-            dismissedRemoteLogIds.addAll(
-                state.logs.asSequence().filterNot { it.id.startsWith("local_") }.map { it.id },
-            )
-            state.copy(logs = emptyList())
+        val current = _uiState.value
+        if (current.isRefreshing) return
+        viewModelScope.launch {
+            if (current.routerConfig.demoMode || current.connectionStatus is ConnectionStatus.ConnectedDemo) {
+                demoEngine.clearLogs()
+                _uiState.update { it.copy(logs = emptyList()) }
+                _snackbarMessage.tryEmit("Semua log simulasi berhasil dihapus")
+                return@launch
+            }
+            if (current.connectionStatus is ConnectionStatus.ConnectedLive) {
+                _uiState.update { it.copy(isRefreshing = true) }
+                restClient.clearSystemLogs(current.routerConfig)
+                    .onSuccess {
+                        _uiState.update { it.copy(isRefreshing = false, logs = emptyList()) }
+                        _snackbarMessage.tryEmit("Log memori MikroTik berhasil dihapus")
+                    }
+                    .onFailure { err ->
+                        _uiState.update { it.copy(isRefreshing = false) }
+                        _snackbarMessage.tryEmit("Gagal menghapus log MikroTik: ${err.message ?: "Error RouterOS"}")
+                    }
+                return@launch
+            }
+            _uiState.update { it.copy(logs = emptyList()) }
+            _snackbarMessage.tryEmit("Log lokal telah dibersihkan")
         }
-        _snackbarMessage.tryEmit("Semua log telah dibersihkan")
     }
 
     fun updateUserSearch(query: String) {

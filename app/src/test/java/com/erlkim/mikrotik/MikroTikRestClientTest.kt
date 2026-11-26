@@ -219,4 +219,118 @@ class MikroTikRestClientTest {
             server.stop(0)
         }
     }
+
+    @Test
+    fun `clearSystemLogs uses native clear on v7_20+ and falls back to memory-lines flush`() = runBlocking {
+        // Case 1: Native POST /rest/system/logging/action/clear succeeds
+        val nativeServer = HttpServer.create(InetSocketAddress("127.0.0.1", 0), 0)
+        val nativeCalls = CopyOnWriteArrayList<Pair<String, String>>()
+        nativeServer.createContext("/rest/") { exchange ->
+            val reqBody = exchange.requestBody.bufferedReader(Charsets.UTF_8).readText()
+            nativeCalls.add("${exchange.requestMethod} ${exchange.requestURI.path}" to reqBody)
+            val bytes = "{}".toByteArray(Charsets.UTF_8)
+            exchange.sendResponseHeaders(200, bytes.size.toLong())
+            exchange.responseBody.use { it.write(bytes) }
+        }
+        nativeServer.start()
+        try {
+            val cfg = RouterConfig(host = "127.0.0.1", port = nativeServer.address.port, username = "admin", password = "pw")
+            val res = client.clearSystemLogs(cfg)
+            assertTrue("native clearSystemLogs failed: ${res.exceptionOrNull()}", res.isSuccess)
+            assertEquals(1, nativeCalls.size)
+            assertEquals("POST /rest/system/logging/action/clear", nativeCalls[0].first)
+            assertEquals("memory", JSONObject(nativeCalls[0].second).getString("action"))
+        } finally {
+            nativeServer.stop(0)
+        }
+
+        // Case 2: Older RouterOS rejects /clear -> GET actions, PATCH memory-lines=1, then restore original
+        val fallbackServer = HttpServer.create(InetSocketAddress("127.0.0.1", 0), 0)
+        val fallbackCalls = CopyOnWriteArrayList<Pair<String, String>>()
+        fallbackServer.createContext("/rest/") { exchange ->
+            val path = exchange.requestURI.path
+            val method = exchange.requestMethod
+            val reqBody = exchange.requestBody.bufferedReader(Charsets.UTF_8).readText()
+            fallbackCalls.add("$method $path" to reqBody)
+            val (status, resp) = when {
+                method == "POST" && path == "/rest/system/logging/action/clear" ->
+                    400 to """{"detail":"no such command"}"""
+                method == "GET" && path == "/rest/system/logging/action" ->
+                    200 to """[{".id":"*1","name":"memory","target":"memory","memory-lines":"1000"},{".id":"*2","name":"disk","target":"disk"}]"""
+                else -> 200 to "{}"
+            }
+            val bytes = resp.toByteArray(Charsets.UTF_8)
+            exchange.sendResponseHeaders(status, bytes.size.toLong())
+            exchange.responseBody.use { it.write(bytes) }
+        }
+        fallbackServer.start()
+        try {
+            val cfg = RouterConfig(host = "127.0.0.1", port = fallbackServer.address.port, username = "admin", password = "pw")
+            val res = client.clearSystemLogs(cfg)
+            assertTrue("fallback clearSystemLogs failed: ${res.exceptionOrNull()}", res.isSuccess)
+            assertEquals(4, fallbackCalls.size)
+            assertEquals("POST /rest/system/logging/action/clear", fallbackCalls[0].first)
+            assertEquals("GET /rest/system/logging/action", fallbackCalls[1].first)
+            assertEquals("PATCH /rest/system/logging/action/*1", fallbackCalls[2].first)
+            assertEquals("1", JSONObject(fallbackCalls[2].second).getString("memory-lines"))
+            assertEquals("PATCH /rest/system/logging/action/*1", fallbackCalls[3].first)
+            assertEquals("1000", JSONObject(fallbackCalls[3].second).getString("memory-lines"))
+        } finally {
+            fallbackServer.stop(0)
+        }
+    }
+
+    @Test
+    fun `makeDhcpLeaseStatic, addUserProfile, and updateWirelessInterface send valid RouterOS v7 payloads`() = runBlocking {
+        val server = HttpServer.create(InetSocketAddress("127.0.0.1", 0), 0)
+        val calls = CopyOnWriteArrayList<Pair<String, JSONObject>>()
+        server.createContext("/rest/") { exchange ->
+            val raw = exchange.requestBody.bufferedReader(Charsets.UTF_8).readText()
+            calls.add("${exchange.requestMethod} ${exchange.requestURI.path}" to JSONObject(raw))
+            val bytes = "{}".toByteArray(Charsets.UTF_8)
+            exchange.sendResponseHeaders(200, bytes.size.toLong())
+            exchange.responseBody.use { it.write(bytes) }
+        }
+        server.start()
+        try {
+            val cfg = RouterConfig(host = "127.0.0.1", port = server.address.port, username = "admin", password = "pw")
+
+            val staticRes = client.makeDhcpLeaseStatic(cfg, "*86")
+            assertTrue("makeDhcpLeaseStatic failed: ${staticRes.exceptionOrNull()}", staticRes.isSuccess)
+
+            val profileRes = client.addUserProfile(
+                config = cfg,
+                name = "vip_new",
+                rateLimit = "Unlimited",
+                sharedUsers = "",
+                sessionTimeout = "None",
+            )
+            assertTrue("addUserProfile failed: ${profileRes.exceptionOrNull()}", profileRes.isSuccess)
+
+            val wifiRes = client.updateWirelessInterface(
+                config = cfg,
+                id = "*A",
+                ssid = "Erlkim-5G",
+                frequency = "auto",
+                comment = "Lobby",
+                isWifiV7 = true,
+            )
+            assertTrue("updateWirelessInterface failed: ${wifiRes.exceptionOrNull()}", wifiRes.isSuccess)
+
+            assertEquals("POST /rest/ip/dhcp-server/lease/make-static", calls[0].first)
+            assertEquals("*86", calls[0].second.getString("numbers"))
+            assertFalse(calls[0].second.has(".id"))
+
+            assertEquals("PUT /rest/ip/hotspot/user/profile", calls[1].first)
+            assertFalse(calls[1].second.has("rate-limit"))
+            assertEquals("1", calls[1].second.getString("shared-users"))
+            assertFalse(calls[1].second.has("session-timeout"))
+
+            assertEquals("PATCH /rest/interface/wifi/*A", calls[2].first)
+            assertEquals("Erlkim-5G", calls[2].second.getString("configuration.ssid"))
+            assertEquals("", calls[2].second.getString("channel.frequency"))
+        } finally {
+            server.stop(0)
+        }
+    }
 }

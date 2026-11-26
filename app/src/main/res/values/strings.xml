@@ -161,7 +161,7 @@
     <string name="logs_empty_desc">Belum ada catatan log router untuk tingkat keparahan atau pencarian ini.</string>
     <string name="cd_clear_logs">Hapus semua log</string>
     <string name="logs_clear_confirm_title">Hapus semua log?</string>
-    <string name="logs_clear_confirm_desc">Semua log lokal dan daftar log yang ditampilkan saat ini akan dibersihkan. Ketuk Refresh untuk memuat ulang log dari RouterOS.</string>
+    <string name="logs_clear_confirm_desc">Semua log lokal dan buffer log memori di RouterOS MikroTik akan dihapus.</string>
     <string name="logs_clear_confirm_action">Hapus Semua</string>
 
     <!-- Add User Dialog -->

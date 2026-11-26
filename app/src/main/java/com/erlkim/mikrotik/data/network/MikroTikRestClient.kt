@@ -543,7 +543,7 @@ class MikroTikRestClient {
             val payload = JSONObject().apply {
                 put("name", name)
                 put("password", password)
-                put("profile", profile)
+                put("profile", profile.ifBlank { "default" })
                 if (limitBytesTotal > 0L) put("limit-bytes-total", limitBytesTotal.toString())
                 if (sessionTimeout.isNotBlank() && sessionTimeout != "0s") {
                     put("limit-uptime", sessionTimeout)
@@ -833,11 +833,15 @@ class MikroTikRestClient {
     ): Result<Unit> = withContext(Dispatchers.IO) {
         runCatching {
             val client = clientFor(config)
+            val normalizedRateLimit = rateLimit.trim().takeUnless { it.isBlank() || it.equals("Unlimited", ignoreCase = true) }
+            val normalizedTimeout = sessionTimeout.trim().takeUnless {
+                it.isBlank() || it.equals("None", ignoreCase = true) || it == "0s"
+            }
             val payload = JSONObject().apply {
                 put("name", name)
-                if (rateLimit.isNotBlank()) put("rate-limit", rateLimit)
-                if (sharedUsers.isNotBlank()) put("shared-users", sharedUsers)
-                if (sessionTimeout.isNotBlank()) put("session-timeout", sessionTimeout)
+                if (normalizedRateLimit != null) put("rate-limit", normalizedRateLimit)
+                put("shared-users", sharedUsers.trim().ifBlank { "1" })
+                if (normalizedTimeout != null) put("session-timeout", normalizedTimeout)
             }
             executeJson(client, config, "PUT", payload, "ip", "hotspot", "user", "profile")
             Unit
@@ -967,8 +971,8 @@ class MikroTikRestClient {
             val payload = JSONObject().apply {
                 put("name", name)
                 put("interface", interfaceName)
-                if (addressPool.isNotBlank()) put("address-pool", addressPool)
-                if (leaseTime.isNotBlank()) put("lease-time", leaseTime)
+                put("address-pool", addressPool.trim().ifBlank { "static-only" })
+                if (leaseTime.isNotBlank()) put("lease-time", leaseTime.trim())
             }
             executeJson(client, config, "PATCH", payload, "ip", "dhcp-server", id)
             Unit
@@ -1019,7 +1023,7 @@ class MikroTikRestClient {
     suspend fun makeDhcpLeaseStatic(config: RouterConfig, id: String): Result<Unit> = withContext(Dispatchers.IO) {
         runCatching {
             val client = clientFor(config)
-            val payload = JSONObject().put(".id", id)
+            val payload = JSONObject().put("numbers", id)
             executeJson(client, config, "POST", payload, "ip", "dhcp-server", "lease", "make-static")
             Unit
         }
@@ -1110,12 +1114,16 @@ class MikroTikRestClient {
             val client = clientFor(config)
             val radioSegment = if (isWifiV7) "wifi" else "wireless"
             val payload = JSONObject().apply {
+                val trimmedFreq = frequency.trim()
                 if (isWifiV7) {
                     put("configuration.ssid", ssid)
-                    if (frequency.isNotBlank()) put("channel.frequency", frequency)
+                    put(
+                        "channel.frequency",
+                        if (trimmedFreq.isBlank() || trimmedFreq.equals("auto", ignoreCase = true)) "" else trimmedFreq,
+                    )
                 } else {
                     put("ssid", ssid)
-                    if (frequency.isNotBlank()) put("frequency", frequency)
+                    if (trimmedFreq.isNotBlank()) put("frequency", trimmedFreq)
                 }
                 put("comment", comment)
             }
@@ -1501,6 +1509,84 @@ class MikroTikRestClient {
             val client = clientFor(config)
             val raw = executeGet(client, config, "log")
             parseSystemLogs(parseJsonArraySafe(raw))
+        }
+    }
+
+    /**
+     * Clears the RouterOS in-memory log buffer via REST API:
+     * 1) Tries RouterOS v7.20+ native `POST /rest/system/logging/action/clear` (`{"action":"memory"}`).
+     * 2) Falls back to RouterOS v7.0-v7.19 official flush (`PATCH` `memory-lines` -> `"1"`, then restore).
+     */
+    suspend fun clearSystemLogs(config: RouterConfig): Result<Unit> = withContext(Dispatchers.IO) {
+        runCatching {
+            val client = clientFor(config)
+            val nativeAttempt = runCatching {
+                executeJson(
+                    client,
+                    config,
+                    "POST",
+                    JSONObject().put("action", "memory"),
+                    "system",
+                    "logging",
+                    "action",
+                    "clear",
+                )
+            }
+            if (nativeAttempt.isSuccess) {
+                return@runCatching
+            }
+
+            val nativeErr = nativeAttempt.exceptionOrNull()
+            val errMsg = nativeErr?.message.orEmpty()
+            if (
+                errMsg.startsWith("Autentikasi ditolak") ||
+                errMsg.startsWith("Akses ditolak") ||
+                errMsg.contains("not enough permissions", ignoreCase = true)
+            ) {
+                throw nativeErr ?: IOException(errMsg)
+            }
+
+            val actionsRaw = executeGet(client, config, "system", "logging", "action")
+            val actions = parseJsonArraySafe(actionsRaw)
+            val memoryActions = buildList {
+                for (i in 0 until actions.length()) {
+                    val obj = actions.optJSONObject(i) ?: continue
+                    val target = obj.optString("target")
+                    val name = obj.optString("name")
+                    if (target.equals("memory", ignoreCase = true) || name.equals("memory", ignoreCase = true)) {
+                        val actionId = obj.optString(".id").ifBlank { name }
+                        val origLines = obj.optString("memory-lines").toIntOrNull()?.coerceAtLeast(2) ?: 1000
+                        add(actionId to origLines)
+                    }
+                }
+            }
+            if (memoryActions.isEmpty()) {
+                throw nativeErr ?: IOException("Action logging 'memory' tidak ditemukan di RouterOS.")
+            }
+
+            for ((actionId, origLines) in memoryActions) {
+                executeJson(
+                    client,
+                    config,
+                    "PATCH",
+                    JSONObject().put("memory-lines", "1"),
+                    "system",
+                    "logging",
+                    "action",
+                    actionId,
+                )
+                executeJson(
+                    client,
+                    config,
+                    "PATCH",
+                    JSONObject().put("memory-lines", origLines.toString()),
+                    "system",
+                    "logging",
+                    "action",
+                    actionId,
+                )
+            }
+            Unit
         }
     }
 

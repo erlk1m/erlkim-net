@@ -1,36 +1,50 @@
 import com.google.gms.googleservices.GoogleServicesPlugin.MissingGoogleServicesStrategy
+import java.util.Properties
 
 plugins {
   alias(libs.plugins.android.application)
   alias(libs.plugins.kotlin.compose)
-  alias(libs.plugins.google.devtools.ksp)
-  alias(libs.plugins.secrets)
+  // alias(libs.plugins.google.devtools.ksp)
+  // alias(libs.plugins.secrets)
   alias(libs.plugins.google.services)
 }
 
 android {
-  namespace = "com.example"
+  namespace = "com.erlkim.mikrotik"
   compileSdk { version = release(36) { minorApiLevel = 1 } }
 
   defaultConfig {
-    applicationId = "com.aistudio.erlkimnet.mkrxqp"
+    applicationId = "com.erlkim.mikrotik"
     minSdk = 24
     targetSdk = 36
     versionCode = 1
     versionName = "1.0"
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    androidResources {
+      localeFilters += listOf("in", "id", "en")
+    }
   }
 
-  // Do not remove or modify these signingConfigs. They are necessary for building, installing,
-  // and updating Android apps in AI Studio.
+  // Release signing uses erlkimikrotik.jks (alias: erlkimnet) with credentials from
+  // keystore.properties or environment variables (STORE_PASSWORD / KEY_PASSWORD).
   signingConfigs {
     create("release") {
-      val keystorePath = System.getenv("KEYSTORE_PATH") ?: "${rootDir}/my-upload-key.jks"
+      val keystoreProps = Properties().apply {
+        val propsFile = rootProject.file("keystore.properties")
+        if (propsFile.exists()) propsFile.inputStream().use { load(it) }
+      }
+      val keystorePath = System.getenv("KEYSTORE_PATH")
+        ?: keystoreProps.getProperty("storeFile")
+        ?: "${rootDir}/erlkimikrotik.jks"
       storeFile = file(keystorePath)
       storePassword = System.getenv("STORE_PASSWORD")
-      keyAlias = "upload"
+        ?: keystoreProps.getProperty("storePassword")
+      keyAlias = System.getenv("KEY_ALIAS")
+        ?: keystoreProps.getProperty("keyAlias")
+        ?: "erlkimnet"
       keyPassword = System.getenv("KEY_PASSWORD")
+        ?: keystoreProps.getProperty("keyPassword")
     }
     create("debugConfig") {
       storeFile = file("${rootDir}/debug.keystore")
@@ -42,8 +56,9 @@ android {
 
   buildTypes {
     release {
-      isCrunchPngs = false
-      isMinifyEnabled = false
+      isCrunchPngs = true
+      isMinifyEnabled = true
+      isShrinkResources = true
       proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
       // Do not remove or modify this signingConfig assignment. It is necessary for Android apps in
       // AI Studio.
@@ -68,15 +83,23 @@ android {
     includeInApk = false
     includeInBundle = true
   }
+  packaging {
+    resources {
+      excludes += setOf(
+        "/META-INF/{AL2.0,LGPL2.1}",
+        "DebugProbesKt.bin",
+        "kotlin-tooling-metadata.json",
+      )
+    }
+  }
 }
 
-// Configure the Secrets Gradle Plugin to use .env and .env.example files
-// to match the convention used in Web projects.
-secrets {
-  propertiesFileName = ".env"
-  defaultPropertiesFileName = ".env.example"
-  ignoreList.add("FIREBASE_APPCHECK_DEBUG_TOKEN")
-}
+// Secrets Gradle Plugin disabled after removing .env.example
+// secrets {
+//   propertiesFileName = ".env"
+//   defaultPropertiesFileName = ".env.example"
+//   ignoreList.add("FIREBASE_APPCHECK_DEBUG_TOKEN")
+// }
 
 googleServices { missingGoogleServicesStrategy = MissingGoogleServicesStrategy.WARN }
 
@@ -106,7 +129,7 @@ dependencies {
   // implementation(libs.androidx.room.ktx)
   // implementation(libs.androidx.room.runtime)
   // implementation(libs.coil.compose)
-  implementation(libs.converter.moshi)
+  // implementation(libs.converter.moshi)
   // implementation(libs.firebase.ai)
   // Uncomment to use Firestore:
   // implementation(libs.firebase.firestore)
@@ -121,11 +144,11 @@ dependencies {
   // implementation(libs.firebase.appcheck.debug)
   implementation(libs.kotlinx.coroutines.android)
   implementation(libs.kotlinx.coroutines.core)
-  implementation(libs.logging.interceptor)
-  implementation(libs.moshi.kotlin)
+  // implementation(libs.logging.interceptor)
+  // implementation(libs.moshi.kotlin)
   implementation(libs.okhttp)
   // implementation(libs.play.services.location)
-  implementation(libs.retrofit)
+  // implementation(libs.retrofit)
   implementation(libs.zxing.core)
   testImplementation(libs.androidx.compose.ui.test.junit4)
   testImplementation(libs.androidx.core)
@@ -141,5 +164,5 @@ dependencies {
   debugImplementation(libs.androidx.compose.ui.test.manifest)
   debugImplementation(libs.androidx.compose.ui.tooling)
   // "ksp"(libs.androidx.room.compiler)
-  "ksp"(libs.moshi.kotlin.codegen)
+  // "ksp"(libs.moshi.kotlin.codegen)
 }

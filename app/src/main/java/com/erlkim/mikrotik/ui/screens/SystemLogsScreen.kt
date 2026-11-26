@@ -22,10 +22,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.ReceiptLong
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.ErrorOutline
 import androidx.compose.material.icons.rounded.Info
-import androidx.compose.material.icons.rounded.ReceiptLong
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.WarningAmber
@@ -333,7 +333,7 @@ fun SystemLogsScreen(
                                 horizontalAlignment = Alignment.CenterHorizontally,
                             ) {
                                 Icon(
-                                    imageVector = Icons.Rounded.ReceiptLong,
+                                    imageVector = Icons.AutoMirrored.Rounded.ReceiptLong,
                                     contentDescription = null,
                                     tint = cs.onSurfaceVariant,
                                     modifier = Modifier.size(38.dp),

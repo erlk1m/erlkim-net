@@ -2305,14 +2305,15 @@ class ErlkimViewModel(application: Application) : AndroidViewModel(application) 
     ) {
         viewModelScope.launch {
             val state = _uiState.value
-            val restoreQuota = options.restoreQuotaConfig && payload.quotaAlertConfig != null
+            val quotaCfg = payload.quotaAlertConfig
+            val restoreQuota = options.restoreQuotaConfig && quotaCfg != null
 
             when (state.connectionStatus) {
                 ConnectionStatus.ConnectedDemo -> {
                     val baseSummary = demoEngine.applyBackup(payload, options)
-                    if (restoreQuota && payload.quotaAlertConfig != null) {
-                        dataStore.saveQuotaAlertConfig(payload.quotaAlertConfig)
-                        _uiState.update { it.copy(quotaAlertConfig = payload.quotaAlertConfig) }
+                    if (restoreQuota) {
+                        dataStore.saveQuotaAlertConfig(quotaCfg)
+                        _uiState.update { it.copy(quotaAlertConfig = quotaCfg) }
                     }
                     val finalSummary = baseSummary.copy(quotaConfigRestored = restoreQuota)
                     applySnapshot(demoEngine.snapshot(), ConnectionStatus.ConnectedDemo)
@@ -2328,9 +2329,9 @@ class ErlkimViewModel(application: Application) : AndroidViewModel(application) 
                 ConnectionStatus.ConnectedLive -> {
                     val liveResult = restClient.restoreBackupPayload(state.routerConfig, payload, options)
                     liveResult.onSuccess { baseSummary ->
-                        if (restoreQuota && payload.quotaAlertConfig != null) {
-                            dataStore.saveQuotaAlertConfig(payload.quotaAlertConfig)
-                            _uiState.update { it.copy(quotaAlertConfig = payload.quotaAlertConfig) }
+                        if (restoreQuota) {
+                            dataStore.saveQuotaAlertConfig(quotaCfg)
+                            _uiState.update { it.copy(quotaAlertConfig = quotaCfg) }
                         }
                         val finalSummary = baseSummary.copy(quotaConfigRestored = restoreQuota)
                         appendLog(

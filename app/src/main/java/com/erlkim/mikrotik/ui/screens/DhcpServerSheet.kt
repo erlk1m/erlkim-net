@@ -399,7 +399,7 @@ fun DhcpServerSheet(
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
                                 Text(
-                                    text = if (editingServer != null) "Edit DHCP Server '${editingServer?.name}'" else "Tambah DHCP Server Baru",
+                                    text = if (editingServer != null) "Edit DHCP Server '${editingServer.name}'" else "Tambah DHCP Server Baru",
                                     style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
                                     color = cs.onSurface,
                                 )

@@ -46,8 +46,8 @@ import androidx.compose.material.icons.rounded.Memory
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.NotificationsActive
 import androidx.compose.material.icons.rounded.Palette
+import androidx.compose.material.icons.automirrored.rounded.ReceiptLong
 import androidx.compose.material.icons.rounded.PowerSettingsNew
-import androidx.compose.material.icons.rounded.ReceiptLong
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Router
 import androidx.compose.material.icons.rounded.Schedule
@@ -353,7 +353,7 @@ fun SettingsScreen(
             subtitle = stringResource(R.string.setting_system_logs_desc),
             badgeColor = ext.badgeAbout,
             iconTint = Color(0xFF7CC0FA),
-            icon = Icons.Rounded.ReceiptLong,
+            icon = Icons.AutoMirrored.Rounded.ReceiptLong,
             trailingPill = "${uiState.logs.size} log",
         ),
         SettingRowSpec(

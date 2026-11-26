@@ -662,7 +662,7 @@ class MikroTikRestClient {
             val client = clientFor(config)
             val payload = JSONObject().apply {
                 put("dst-host", dstHost)
-                put("dst-port", dstPort)
+                if (dstPort.isNotBlank()) put("dst-port", dstPort.trim())
                 put("action", action)
                 put("comment", comment)
             }
@@ -782,9 +782,9 @@ class MikroTikRestClient {
         runCatching {
             val client = clientFor(config)
             val payload = JSONObject().apply {
-                put("mac-address", macAddress)
-                put("address", address)
-                put("to-address", toAddress)
+                if (macAddress.isNotBlank()) put("mac-address", macAddress.trim())
+                if (address.isNotBlank()) put("address", address.trim())
+                if (toAddress.isNotBlank()) put("to-address", toAddress.trim())
                 put("server", server.ifBlank { "all" })
                 put("type", type)
                 put("comment", comment)
@@ -854,11 +854,13 @@ class MikroTikRestClient {
     ): Result<Unit> = withContext(Dispatchers.IO) {
         runCatching {
             val client = clientFor(config)
+            val normalizedRateLimit = if (rateLimit.equals("Unlimited", true) || rateLimit.isBlank()) "" else rateLimit.trim()
+            val normalizedTimeout = if (sessionTimeout.equals("None", true) || sessionTimeout.isBlank()) "0s" else sessionTimeout.trim()
             val payload = JSONObject().apply {
                 put("name", name)
-                put("rate-limit", if (rateLimit.equals("Unlimited", true)) "" else rateLimit)
+                put("rate-limit", normalizedRateLimit)
                 put("shared-users", sharedUsers.ifBlank { "1" })
-                put("session-timeout", if (sessionTimeout.equals("None", true)) "" else sessionTimeout)
+                put("session-timeout", normalizedTimeout)
             }
             executeJson(client, config, "PATCH", payload, "ip", "hotspot", "user", "profile", id)
             Unit

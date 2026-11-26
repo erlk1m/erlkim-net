@@ -22,13 +22,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ShowChart
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.RestartAlt
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.SettingsEthernet
-import androidx.compose.material.icons.rounded.ShowChart
 import androidx.compose.material.icons.rounded.WarningAmber
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -715,7 +715,7 @@ private fun InterfaceItemCard(
                         .testTag("monitor_interface_${iface.name}"),
                 ) {
                     Icon(
-                        imageVector = Icons.Rounded.ShowChart,
+                        imageVector = Icons.AutoMirrored.Rounded.ShowChart,
                         contentDescription = null,
                         modifier = Modifier.size(16.dp),
                     )

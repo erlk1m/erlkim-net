@@ -10,7 +10,9 @@ import java.net.UnknownHostException
 import java.util.concurrent.CopyOnWriteArrayList
 import javax.net.ssl.SSLException
 import kotlinx.coroutines.runBlocking
+import org.json.JSONObject
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -147,6 +149,72 @@ class MikroTikRestClientTest {
                 listOf("PATCH /rest/interface/wifi/*A", "PATCH /rest/interface/wireless/*B"),
                 requests.toList(),
             )
+        } finally {
+            server.stop(0)
+        }
+    }
+
+    @Test
+    fun `PATCH payloads omit blank optional fields and normalize None session timeout`() = runBlocking {
+        val server = HttpServer.create(InetSocketAddress("127.0.0.1", 0), 0)
+        val bodies = CopyOnWriteArrayList<Pair<String, JSONObject>>()
+        server.createContext("/rest/") { exchange ->
+            val rawBody = exchange.requestBody.bufferedReader(Charsets.UTF_8).readText()
+            bodies.add("${exchange.requestMethod} ${exchange.requestURI.path}" to JSONObject(rawBody))
+            val bytes = "{}".toByteArray(Charsets.UTF_8)
+            exchange.sendResponseHeaders(200, bytes.size.toLong())
+            exchange.responseBody.use { it.write(bytes) }
+        }
+        server.start()
+        try {
+            val cfg = RouterConfig(host = "127.0.0.1", port = server.address.port, username = "admin", password = "pw")
+
+            val wgResult = client.updateWalledGarden(
+                config = cfg,
+                id = "*W1",
+                dstHost = "*.whatsapp.net",
+                dstPort = " ",
+                action = "allow",
+                comment = "wa",
+            )
+            assertTrue("updateWalledGarden failed: ${wgResult.exceptionOrNull()}", wgResult.isSuccess)
+
+            val bindResult = client.updateIpBinding(
+                config = cfg,
+                id = "*B1",
+                macAddress = "AA:BB:CC:DD:EE:01",
+                address = "",
+                toAddress = "",
+                server = "",
+                type = "bypassed",
+                comment = "ap",
+            )
+            assertTrue("updateIpBinding failed: ${bindResult.exceptionOrNull()}", bindResult.isSuccess)
+
+            val profileResult = client.updateUserProfile(
+                config = cfg,
+                id = "*P1",
+                name = "vip",
+                rateLimit = "Unlimited",
+                sharedUsers = "",
+                sessionTimeout = "None",
+            )
+            assertTrue("updateUserProfile failed: ${profileResult.exceptionOrNull()}", profileResult.isSuccess)
+
+            assertEquals(3, bodies.size)
+            assertEquals("PATCH /rest/ip/hotspot/walled-garden/*W1", bodies[0].first)
+            assertFalse(bodies[0].second.has("dst-port"))
+
+            assertEquals("PATCH /rest/ip/hotspot/ip-binding/*B1", bodies[1].first)
+            assertEquals("AA:BB:CC:DD:EE:01", bodies[1].second.getString("mac-address"))
+            assertFalse(bodies[1].second.has("address"))
+            assertFalse(bodies[1].second.has("to-address"))
+            assertEquals("all", bodies[1].second.getString("server"))
+
+            assertEquals("PATCH /rest/ip/hotspot/user/profile/*P1", bodies[2].first)
+            assertEquals("", bodies[2].second.getString("rate-limit"))
+            assertEquals("1", bodies[2].second.getString("shared-users"))
+            assertEquals("0s", bodies[2].second.getString("session-timeout"))
         } finally {
             server.stop(0)
         }

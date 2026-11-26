@@ -18,10 +18,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ReceiptLong
 import androidx.compose.material.icons.rounded.AccessTime
 import androidx.compose.material.icons.rounded.CloudUpload
 import androidx.compose.material.icons.rounded.PowerSettingsNew
-import androidx.compose.material.icons.rounded.ReceiptLong
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.RestartAlt
 import androidx.compose.material.icons.rounded.Router
@@ -340,7 +340,7 @@ fun SystemControlSheet(
                 SystemShortcutTile(
                     title = "System Logs",
                     subtitle = "Log RouterOS",
-                    icon = Icons.Rounded.ReceiptLong,
+                    icon = Icons.AutoMirrored.Rounded.ReceiptLong,
                     onClick = onOpenSystemLogs,
                     modifier = Modifier
                         .weight(1f)

@@ -19,11 +19,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ReceiptLong
 import androidx.compose.material.icons.rounded.CloudUpload
 import androidx.compose.material.icons.rounded.DarkMode
 import androidx.compose.material.icons.rounded.Memory
 import androidx.compose.material.icons.rounded.NotificationsActive
-import androidx.compose.material.icons.rounded.ReceiptLong
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Router
 import androidx.compose.material.icons.rounded.Speed
@@ -320,7 +320,7 @@ fun ErlkimNetApp(viewModel: ErlkimViewModel = viewModel()) {
                                 launchSingleTop = true
                             }
                         },
-                        icon = { Icon(Icons.Rounded.ReceiptLong, contentDescription = null) },
+                        icon = { Icon(Icons.AutoMirrored.Rounded.ReceiptLong, contentDescription = null) },
                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 2.dp),
                     )
                     NavigationDrawerItem(

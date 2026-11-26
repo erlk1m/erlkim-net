@@ -401,7 +401,7 @@ fun ThroughputAlertsSheet(
                     Spacer(modifier = Modifier.height(12.dp))
                     Button(
                         onClick = {
-                            if (isThresholdValid && parsedThreshold != null) {
+                            if (isThresholdValid) {
                                 onSaveConfig(
                                     ThroughputAlertConfig(
                                         enabled = enabled,

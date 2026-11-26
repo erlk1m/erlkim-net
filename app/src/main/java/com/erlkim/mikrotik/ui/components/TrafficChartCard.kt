@@ -24,12 +24,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ShowChart
 import androidx.compose.material.icons.rounded.ArrowDownward
 import androidx.compose.material.icons.rounded.ArrowUpward
 import androidx.compose.material.icons.rounded.Pause
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.SettingsEthernet
-import androidx.compose.material.icons.rounded.ShowChart
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -161,7 +161,7 @@ fun TrafficChartCard(
                     modifier = Modifier.weight(1f),
                 ) {
                     Icon(
-                        imageVector = Icons.Rounded.ShowChart,
+                        imageVector = Icons.AutoMirrored.Rounded.ShowChart,
                         contentDescription = null,
                         tint = cs.tertiary,
                         modifier = Modifier.size(20.dp),
